@@ -1,35 +1,158 @@
-import { useState } from 'react'
-import reactLogo from './assets/react.svg'
-import viteLogo from '/vite.svg'
-import './App.css'
+import { React, useState } from 'react';
+
+import './App.css';
+import {Container, Box, Button} from '@mui/material';
+
+import InputBox from './components/InputBox.jsx';
+import OutputBox from './components/OutputBox.jsx';
+import Title from './components/Title.jsx';
+import Footer from './components/Footer.jsx';
+import TextFields from './components/TextFields.jsx'
 
 function App() {
-  const [count, setCount] = useState(0)
+  const [inputText, setInputText] = useState('');
+  const [outputText, setOutputText] = useState('');
+  const [param1, setParam1] = useState('');
+  const [param2, setParam2] = useState('');
+  const [param3, setParam3] = useState('');
+
+
+    function getComments(str) {
+      const regex = /\(([^)]*)\)/;
+      const match = str.match(regex);
+      return match ? match[1] : '';
+  }
+    function getNumberAfterChar(str, char) {    
+      //int version
+      const index = str.indexOf(char);
+      if (index === -1) {
+        return '';  //no code
+      }
+      const substr = str.substring(index + char.length);
+      const n = parseInt(substr);
+      if (isNaN(n)) {
+        return '';  //code with no number
+      }
+      return n;
+  }
+    function getFloatAfterChar(str, char) {     
+      //float version
+      const index = str.indexOf(char);
+      if (index === -1) {
+        return '';  //no code
+      }
+      const substr = str.substring(index + char.length);
+      const n = parseFloat(substr);
+      if (isNaN(n)) {
+        return '';  //code with no number
+      }
+      return n;
+  }
+    function clean(str) {
+      //initial clean up
+      str = str.replace(/\s/g, '');             //whitespace
+      str = str.replace(/\([\s\S]*?\)/g, '');   //comments
+      str = str.toUpperCase();                  //capitalize
+      
+      //ignoring these
+      if (str.includes('IF')) str = '';
+      if (str.includes('WHILE')) str = '';
+
+      //handle T01 etc
+      if (str.includes('T0')) str = str.replace('T0', 'T');
+      if (str.includes('N0')) str = str.replace('N0', 'N');
+      if (str.includes('H0')) str = str.replace('H0', 'H');
+      if (str.includes('D0')) str = str.replace('D0', 'D');
+
+      return str;
+  }
+    function search(str) {
+      //replace codes
+
+      if (str.includes('T') && getFloatAfterChar(str, 'T') == param1) {
+        let n = getFloatAfterChar(str, 'T');
+        str = str.replace('T'+n, 'T'+param2);
+      }
+      if (str.includes('N') && getFloatAfterChar(str, 'N') == param1) {
+        let n = getFloatAfterChar(str, 'N');
+        str = str.replace('N'+n, 'N'+param2);
+      }
+      if (str.includes('H') && getFloatAfterChar(str, 'H') == param1) {
+        let n = getFloatAfterChar(str, 'H');
+        str = str.replace('H'+n, 'H'+param2);
+      }
+      if (str.includes('D') && getFloatAfterChar(str, 'D') == param1) {
+        let n = getFloatAfterChar(str, 'D');
+        str = str.replace('D'+n, 'D'+param2);
+      }
+      return str;
+  }
+    function outputFunction(text) {
+      var output = '';
+      var a = text.split(/\r?\n/);   //split section by line
+      var o = a.map(item => {return {text: item};});
+      o.forEach(line => {
+        line.comments = '';
+        line.comments += getComments(line.text);
+        line.text = clean(line.text);
+        line.text = search(line.text);
+        
+        output += line.text;
+        if (line.comments.length > 1) output += '(' + line.comments + ')';
+        output += '\n';
+      });
+
+      return output;
+  }
+
+    const handleInputInteraction = (event) => {setInputText(event.target.value);}
+    const handleUpload = () => {setOutputText(outputFunction(inputText));}
+    const handleParamChange1 = (event) => {setParam1(event.target.value);}
+    const handleParamChange2 = (event) => {setParam2(event.target.value);}
 
   return (
+    <div className="App">
     <>
-      <div>
-        <a href="https://vite.dev" target="_blank">
-          <img src={viteLogo} className="logo" alt="Vite logo" />
-        </a>
-        <a href="https://react.dev" target="_blank">
-          <img src={reactLogo} className="logo react" alt="React logo" />
-        </a>
-      </div>
-      <h1>Vite + React</h1>
-      <div className="card">
-        <button onClick={() => setCount((count) => count + 1)}>
-          count is {count}
-        </button>
-        <p>
-          Edit <code>src/App.jsx</code> and save to test HMR
-        </p>
-      </div>
-      <p className="read-the-docs">
-        Click on the Vite and React logos to learn more
-      </p>
+    <Container maxWidth={false} disableGutters sx={{bgcolor: 'lightsteel', height: '30px'}}>
+      <Box display="flex" flexDirection={'row'} justifyContent={'center'}>
+        <Title/>
+      </Box>
+    </Container>
+      
+    <Container maxWidth={false} disableGutters sx={{ bgcolor: 'lightsteel', height: 'calc(100vh - 80px)'}}>
+      <Box display="flex" flexDirection={'column'} justifyContent={'center'} height={'100%'}>
+        
+        <TextFields 
+          input1 = {param1}
+          input2 = {param2}
+          handleChange1 = {handleParamChange1}
+          handleChange2 = {handleParamChange2}
+        /> 
+        
+        <Box display="flex" flexDirection={'row'} justifyContent={'center'} height={'100%'}>
+        
+          <Box display="flex" flexDirection = {'column'} height={'100%'} width={'50%'}>
+            <InputBox text = {inputText} handleChange = {handleInputInteraction}/>
+            <Button variant='contained' color='primary' onClick = {handleUpload}>UPLOAD</Button>
+          </Box>
+
+          <Box display="flex" flexDirection={'column'} height={'100%'} width={'50%'}>
+            <OutputBox text={outputText}/>
+          </Box>
+
+        </Box>
+
+      </Box>
+    </Container>
+
+    <Container maxWidth={false} disableGutters sx={{bgcolor: 'lightsteel', height: '30px'}}>
+      <Box display="flex" flexDirection={'row'} justifyContent={'right'}>
+        <Footer/>
+      </Box>
+    </Container>
     </>
+    </div>
   )
 }
 
-export default App
+export default App;
