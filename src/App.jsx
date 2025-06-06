@@ -15,6 +15,7 @@ function App() {
   const [param1, setParam1] = useState('');
   const [param2, setParam2] = useState('');
   const [param3, setParam3] = useState('');
+  const [param4, setParam4] = useState('');
 
 
     function getComments(str) {
@@ -69,21 +70,25 @@ function App() {
     function search(str) {
       //replace codes
 
-      if (str.includes('T') && getFloatAfterChar(str, 'T') == param1) {
+      if (getFloatAfterChar(str, 'T') == param1) {
         let n = getFloatAfterChar(str, 'T');
         str = str.replace('T'+n, 'T'+param2);
       }
-      if (str.includes('N') && getFloatAfterChar(str, 'N') == param1) {
+      if (getFloatAfterChar(str, 'N') == param1) {
         let n = getFloatAfterChar(str, 'N');
         str = str.replace('N'+n, 'N'+param2);
       }
-      if (str.includes('H') && getFloatAfterChar(str, 'H') == param1) {
+      if (getFloatAfterChar(str, 'H') == param1) {
         let n = getFloatAfterChar(str, 'H');
         str = str.replace('H'+n, 'H'+param2);
       }
-      if (str.includes('D') && getFloatAfterChar(str, 'D') == param1) {
+      if (getFloatAfterChar(str, 'D') == param1) {
         let n = getFloatAfterChar(str, 'D');
         str = str.replace('D'+n, 'D'+param2);
+      }
+      if (getFloatAfterChar(str, 'G') == param3) {
+        let n = getFloatAfterChar(str, 'G');
+        str = str.replace('G'+n, 'G'+param4);
       }
       return str;
   }
@@ -109,6 +114,8 @@ function App() {
     const handleUpload = () => {setOutputText(outputFunction(inputText));}
     const handleParamChange1 = (event) => {setParam1(event.target.value);}
     const handleParamChange2 = (event) => {setParam2(event.target.value);}
+    const handleParamChange3 = (event) => {setParam3(event.target.value);}
+    const handleParamChange4 = (event) => {setParam4(event.target.value);}
 
   return (
     <div className="App">
@@ -120,16 +127,20 @@ function App() {
     </Container>
       
     <Container maxWidth={false} disableGutters sx={{ bgcolor: 'lightsteel', height: 'calc(100vh - 80px)'}}>
-      <Box display="flex" flexDirection={'column'} justifyContent={'center'} height={'100%'}>
+      <Box display="flex" flexDirection={'column'} height={'100%'}>
         
         <TextFields 
           input1 = {param1}
           input2 = {param2}
+          input3 = {param3}
+          input4 = {param4}
           handleChange1 = {handleParamChange1}
           handleChange2 = {handleParamChange2}
+          handleChange3 = {handleParamChange3}
+          handleChange4 = {handleParamChange4}
         /> 
         
-        <Box display="flex" flexDirection={'row'} justifyContent={'center'} height={'100%'}>
+        <Box display="flex" flexDirection={'row'} height={'100%'}>
         
           <Box display="flex" flexDirection = {'column'} height={'100%'} width={'50%'}>
             <InputBox text = {inputText} handleChange = {handleInputInteraction}/>
